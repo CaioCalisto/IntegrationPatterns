@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+    rabbitmq:
+        image: rabbitmq:3-management
+        ports: 
+            - "15672:15672"
+            - "5672:5672"
+        
+    sender:
+        build: ./Sender
+        depends_on:
+            - rabbitmq
+
+    receiver1:
+        build: ./Receiver1
+        depends_on:
+            - rabbitmq
+
+    receiver2:
+        build: ./Receiver2
+        depends_on:
+            - rabbitmq
