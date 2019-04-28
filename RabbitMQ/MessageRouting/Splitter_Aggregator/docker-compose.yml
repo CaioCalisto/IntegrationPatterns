@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+    rabbitmq:
+        image: rabbitmq:3-management
+        ports: 
+            - "15672:15672"
+            - "5672:5672"
+        
+    order:
+        build: ./Order
+        depends_on:
+            - rabbitmq
+
+    book:
+        build: ./Product_Book
+        depends_on:
+            - rabbitmq
+
+    eletronic:
+        build: ./Product_Eletronic
+        depends_on:
+            - rabbitmq
+           
+    splitter:
+        build: ./Splitter
+        depends_on:
+            - rabbitmq
+            
+    aggregator:
+        build: ./Aggregator
+        depends_on:
+            - rabbitmq
