@@ -45,6 +45,7 @@ namespace Service.Services.Receiver
         {
             string message = Encoding.UTF8.GetString(args.Body);
             Response item = JsonConvert.DeserializeObject<Response>(message);
+            this.logger.LogInformation($"Receive order id {item.OrderId}");
             this.orderItemsDao.AddOrderItem(item);
         }
     }
