@@ -28,7 +28,7 @@ namespace Splitter
             while (true == true)
             {
                 Console.WriteLine("Splitter listening...");
-                Thread.Sleep(5000);
+                Thread.Sleep(20000);
             }
         }
 
@@ -36,7 +36,7 @@ namespace Splitter
         {
             string message = Encoding.UTF8.GetString(args.Body);
             OrderMessage.Order order = JsonConvert.DeserializeObject<OrderMessage.Order>(message);
-            SplitMessageAndSend(order);
+			SplitMessageAndSend(order);
         }
 
         private static void SplitMessageAndSend(OrderMessage.Order order)

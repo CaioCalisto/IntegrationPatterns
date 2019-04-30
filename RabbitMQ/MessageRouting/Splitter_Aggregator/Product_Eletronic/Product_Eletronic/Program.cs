@@ -26,7 +26,7 @@ namespace Product_Eletronic
             while (true == true)
             {
                 Console.WriteLine("Eletronic Service listening...");
-                Thread.Sleep(1200);
+                Thread.Sleep(20000);
             }
         }
 
