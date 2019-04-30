@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Service.DAO
 {
     public class OrderItemsDao : IOrderItemsDao
     {
-        private List<Models.OrderItem> items;
+        private List<Services.Receiver.Response> items;
 
         public OrderItemsDao()
         {
-            this.items = new List<Models.OrderItem>();
+            this.items = new List<Services.Receiver.Response>();
         }
 
-        public void AddOrderItem(Models.OrderItem orderItem)
+        public void AddOrderItem(Services.Receiver.Response orderItem)
         {
             if (!this.items.Contains(orderItem))
                 this.items.Add(orderItem);
@@ -27,22 +25,22 @@ namespace Service.DAO
 
         public int GetOrderLength(int orderId)
         {
-            Models.OrderItem order = this.items.Where(i => i.OrderId == orderId).FirstOrDefault();
+            Services.Receiver.Response order = this.items.Where(i => i.OrderId == orderId).FirstOrDefault();
             if (order == null)
                 return 0;
             else
                 return order.OrderLength;
         }
 
-        public IEnumerable<Models.OrderItem> GetOrderItemsByOrderId(int orderId)
+        public IEnumerable<Services.Receiver.Response> GetOrderItemsByOrderId(int orderId)
         {
             return this.items.Where(i => i.OrderId == orderId);
         }
 
         public void RemoveByOrderId(int orderId)
         {
-            IEnumerable<Models.OrderItem> itemsToRemove = this.items.Where(i => i.OrderId == orderId);
-            foreach(Models.OrderItem itemToRemove in itemsToRemove)
+            IEnumerable<Services.Receiver.Response> itemsToRemove = this.items.Where(i => i.OrderId == orderId);
+            foreach(Services.Receiver.Response itemToRemove in itemsToRemove)
             {
                 this.items.Remove(itemToRemove);
             }
@@ -51,7 +49,7 @@ namespace Service.DAO
         public void Clear()
         {
             this.items.Clear();
-            this.items = new List<Models.OrderItem>();
+            this.items = new List<Services.Receiver.Response>();
         }
 
     }

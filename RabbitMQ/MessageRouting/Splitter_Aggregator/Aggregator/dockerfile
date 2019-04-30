@@ -1,13 +1,11 @@
-FROM microsoft/dotnet:2.1-sdk
-
+FROM microsoft/dotnet:2.2.100-sdk AS build
 WORKDIR /app
-  
-COPY . .
+COPY . ./
+RUN dotnet restore Aggregator.sln -nowarn:msb3202,nu1503
+RUN dotnet publish Aggregator.sln --no-restore -c Release -o /app
 
-RUN dotnet restore
- 
-COPY . .
+FROM microsoft/dotnet:2.2.0-aspnetcore-runtime
+WORKDIR /app
+COPY --from=build /app .
 
-RUN dotnet publish -c Release -o out
-
-ENTRYPOINT ["dotnet", "Service/out/Service.dll"]
+ENTRYPOINT ["dotnet", "Service.dll"]

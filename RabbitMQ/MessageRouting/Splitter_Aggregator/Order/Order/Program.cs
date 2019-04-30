@@ -59,7 +59,7 @@ namespace Order
         private static void ConsumerReceived(object sender, BasicDeliverEventArgs args)
         {
             string message = Encoding.UTF8.GetString(args.Body);
-            Response.Order order = JsonConvert.DeserializeObject<Response.Order>(message);
+            Response.Response order = JsonConvert.DeserializeObject<Response.Response>(message);
             Console.WriteLine($"ORDER PROCESSED: {order.OrderId} - {order.Date} - {order.Message}");
         }
 

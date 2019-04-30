@@ -43,7 +43,7 @@ namespace Product_Book
         {
             Thread.Sleep(5000);
             string aggregatorQueueName = "AGGREGATOR_QUEUE";
-            Response.Order order = new Response.Order(orderItem.OrderId, orderItem.ItemId, true, "Book Processed", orderItem.Date, orderItem.ItemSeq, orderItem.OrderLength);
+            Response.Response order = new Response.Response(orderItem.OrderId, orderItem.ItemId, true, "Book Processed", orderItem.Date, orderItem.ItemSeq, orderItem.OrderLength);
             using (IModel aggregatorChannel = connection.CreateModel())
             {
                 aggregatorChannel.QueueDeclare(queue: aggregatorQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);

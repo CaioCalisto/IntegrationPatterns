@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Service.Configuration;
 using Service.DAO;
-using Service.Services;
 using Service.Services.Base;
 
 namespace Service
@@ -29,8 +24,8 @@ namespace Service
             services.AddOptions();
             services.AddTransient<IRabbitMQBase, RabbitMQBase>();
             services.AddSingleton<IOrderItemsDao, OrderItemsDao>();
-            services.AddHostedService<Receiver>();
-            services.AddHostedService<Sender>();
+            services.AddHostedService<Services.Receiver.Receiver>();
+            services.AddHostedService<Services.Sender.Sender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

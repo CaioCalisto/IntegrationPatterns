@@ -4,8 +4,8 @@ services:
     rabbitmq:
         image: rabbitmq:3-management
         ports: 
-            - "15672:15672"
-            - "5672:5672"
+            - "15670:15672"
+            - "5670:5672"
         
     order:
         build: ./Order

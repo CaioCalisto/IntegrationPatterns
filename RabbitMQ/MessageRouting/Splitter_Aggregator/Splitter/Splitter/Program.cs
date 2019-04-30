@@ -47,17 +47,17 @@ namespace Splitter
             {
                 if (item.ItemType == OrderMessage.Type.BOOK)
                 {
-                    SendBook(new OrderItemSplitted(order.Id, item.Id, item.Quantity, order.Customer.Email, order.Date, itemSeq, messageLength));
+                    SendBook(new OrderItem(order.Id, item.Id, item.Quantity, order.Customer.Email, order.Date, itemSeq, messageLength));
                 }
                 else if (item.ItemType == OrderMessage.Type.ELETRONIC)
                 {
-                    SendEletronic(new OrderItemSplitted(order.Id, item.Id, item.Quantity, order.Customer.Email, order.Date, itemSeq, messageLength));
+                    SendEletronic(new OrderItem(order.Id, item.Id, item.Quantity, order.Customer.Email, order.Date, itemSeq, messageLength));
                 }
                 itemSeq++;
             }
         }
 
-        private static void SendBook(OrderItemSplitted orderItem)
+        private static void SendBook(OrderItem orderItem)
         {
             using (IModel channel = connection.CreateModel())
             {
@@ -67,7 +67,7 @@ namespace Splitter
             }
         }
 
-        private static void SendEletronic(OrderItemSplitted orderItem)
+        private static void SendEletronic(OrderItem orderItem)
         {
             using (IModel channel = connection.CreateModel())
             {
