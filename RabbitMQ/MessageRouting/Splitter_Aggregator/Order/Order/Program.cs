@@ -33,15 +33,19 @@ namespace Order
                 Message.Order order = null;
                 if (id % 2 == 0)
                 {
-                    order = Message.Order.Create(id, DateTime.Now, new Message.Customer(1, "first@google.com"));
-                    order.AddItem(1, 5, Message.Type.BOOK);
-                    order.AddItem(3, 1, Message.Type.ELETRONIC);
+                    order = new Message.Order(id, DateTime.Now, new Message.Customer(1, "first@google.com"), new List<Message.OrderItem>()
+                    {
+                        new Message.OrderItem(1, 5, Message.Type.BOOK),
+                        new Message.OrderItem(3, 1, Message.Type.ELETRONIC)
+                    });
                 }
                 else
                 {
-                    order = Message.Order.Create(id, DateTime.Now, new Message.Customer(2, "second@msn.com"));
-                    order.AddItem(2, 1, Message.Type.BOOK);
-                    order.AddItem(4, 2, Message.Type.ELETRONIC);
+                    order = new Message.Order(id, DateTime.Now, new Message.Customer(2, "second@msn.com"), new List<Message.OrderItem>()
+                    {
+                        new Message.OrderItem(2, 1, Message.Type.BOOK),
+                        new Message.OrderItem(4, 2, Message.Type.ELETRONIC)
+                    });
                 }
                 using (IModel splitterChannel = connection.CreateModel())
                 {
