@@ -24,8 +24,8 @@ namespace Service
             services.AddOptions();
             services.AddTransient<IRabbitMQBase, RabbitMQBase>();
             services.AddSingleton<IOrderItemsDao, OrderItemsDao>();
-            services.AddHostedService<Services.Receiver.Receiver>();
-            services.AddHostedService<Services.Sender.Sender>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.Receiver.Receiver>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.Sender.Sender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

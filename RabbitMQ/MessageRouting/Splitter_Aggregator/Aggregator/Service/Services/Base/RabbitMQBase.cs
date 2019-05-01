@@ -21,7 +21,7 @@ namespace Service.Services.Base
             {
                 try
                 {
-                    connection = factory.CreateConnection();
+                    connection = factory.CreateConnection("MyConnection");
                     tryAgain = false;
                 }
                 catch (Exception ex)

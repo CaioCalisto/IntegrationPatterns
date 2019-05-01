@@ -15,32 +15,56 @@ using Service.Services.Base;
 
 namespace Service.Services.Sender
 {
-    public class Sender : BackgroundService
+    public class Sender : IHostedService
     {
+        private Task executingTask;
+        private readonly CancellationTokenSource stoppingCts = new CancellationTokenSource();
         private readonly ILogger logger;
         private IConnection connection;
+		private IModel processedChannel;
         private IOrderItemsDao orderItemsDao;
         private DelayOptions delayOptions;
         private string processedQueueName;
 
         public Sender(IRabbitMQBase rabbitMQBase, ILoggerFactory loggerFactory, IOrderItemsDao orderItemsDao, IOptions<DelayOptions> settings)
         {
-            this.connection = rabbitMQBase.CreateConnection();
-            this.logger = loggerFactory.CreateLogger<Sender>();
-            this.orderItemsDao = orderItemsDao;
-            this.delayOptions = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
-            processedQueueName = "ORDERPROCESSED_QUEUE";
+            try
+            {
+				this.processedQueueName = "ORDERPROCESSED_QUEUE";
+                this.logger = loggerFactory.CreateLogger<Sender>();
+                this.connection = rabbitMQBase.CreateConnection();
+				this.processedChannel = connection.CreateModel();
+				this.processedChannel.QueueDeclare(queue: processedQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+                this.orderItemsDao = orderItemsDao;
+                this.delayOptions = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+            }
+            catch(Exception ex)
+            {
+                this.logger.LogError($"Message: {ex.Message}, Source: {ex.Source}, StackTrace: {ex.StackTrace}");
+            }
         }
 
-        protected async override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            this.logger.LogInformation("Aggregator Sender Service is listening...");
-            while (!stoppingToken.IsCancellationRequested)
+            this.logger.LogInformation("Aggregator Sender Service is working...");
+            try
             {
-                await Task.Delay(delayOptions.CheckAggregatorTime);
-                CheckAggregatorMessages();
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    this.logger.LogInformation("Aggregator checking for orders");
+                    CheckAggregatorMessages();
+                    await Task.Delay(delayOptions.CheckAggregatorTime, stoppingToken);
+                }
             }
-            this.logger.LogInformation("Aggregator Receiver Service is stopping.");
+            catch(Exception ex)
+            {
+                this.logger.LogError($"Message: {ex.Message}, Source: {ex.Source}, StackTrace: {ex.StackTrace}");
+            }
+            finally
+            {
+                this.logger.LogInformation("Aggregator Sender Service is stopping.");
+                await Task.CompletedTask;
+            }
         }
 
         private void CheckAggregatorMessages()
@@ -65,11 +89,36 @@ namespace Service.Services.Sender
                 processed = false;
             
             Response order = new Response(orderItems.First().OrderId, processed, message, orderItems.First().Date);
-            using (IModel processedChannel = connection.CreateModel())
+            
+            byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(order));
+            this.processedChannel.BasicPublish(exchange: "", routingKey: this.processedQueueName, basicProperties: null, body: body);
+            this.logger.LogInformation($"Sent order id {orderItems.First().OrderId}");
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            this.executingTask = ExecuteAsync(cancellationToken);
+
+            if (this.executingTask.IsCompleted)
             {
-                processedChannel.QueueDeclare(queue: processedQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
-                byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(order));
-                processedChannel.BasicPublish(exchange: "", routingKey: processedQueueName, basicProperties: null, body: body);
+                return this.executingTask;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            if (this.executingTask == null)
+                return;
+
+            try
+            {
+                stoppingCts.Cancel();
+            }
+            finally
+            {
+                await Task.WhenAll(this.executingTask);
             }
         }
     }

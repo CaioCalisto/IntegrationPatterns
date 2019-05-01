@@ -10,10 +10,9 @@ namespace Product_Book
     class Program
     {
         static IConnection connection;
-
         static void Main(string[] args)
         {
-            IConnection connection = CreateConnection();
+            connection = CreateConnection();
             string exchangeName = "PRODUCTS_EXCHANGE";
             IModel receiveChannel = connection.CreateModel();
             receiveChannel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
@@ -34,7 +33,7 @@ namespace Product_Book
         private static void ConsumerReceived(object sender, BasicDeliverEventArgs args)
         {
             string message = Encoding.UTF8.GetString(args.Body);
-            OrderItem orderItem= JsonConvert.DeserializeObject<OrderItem>(message);
+            OrderItem orderItem = JsonConvert.DeserializeObject<OrderItem>(message);
             Console.WriteLine($"Book Processed: order {orderItem.OrderId}");
             SendResponse(orderItem);
         }

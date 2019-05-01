@@ -11,8 +11,10 @@ using Service.Services.Base;
 
 namespace Service.Services.Receiver
 {
-    public class Receiver : BackgroundService
+    public class Receiver : IHostedService
     {
+        private Task executingTask;
+        private readonly CancellationTokenSource stoppingCts = new CancellationTokenSource();
         private readonly ILogger logger;
         private IConnection connection;
         private IOrderItemsDao orderItemsDao;
@@ -26,7 +28,7 @@ namespace Service.Services.Receiver
             this.aggregatorQueueName = "AGGREGATOR_QUEUE";
         }
 
-        protected async override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             this.logger.LogInformation("Aggregator Receiver Service is listening...");
             IModel aggregatorChannel = connection.CreateModel();
@@ -39,14 +41,43 @@ namespace Service.Services.Receiver
             {
             }
             this.logger.LogInformation("Aggregator Receiver Service is stopping.");
+
+            await Task.CompletedTask;
         }
 
         private void ConsumerReceived(object sender, BasicDeliverEventArgs args)
         {
             string message = Encoding.UTF8.GetString(args.Body);
             Response item = JsonConvert.DeserializeObject<Response>(message);
-            this.logger.LogInformation($"Receive order id {item.OrderId}");
+            this.logger.LogInformation($"Receive order id {item.OrderId}, {item.ItemId}, Seq {item.ItemSeq}");
             this.orderItemsDao.AddOrderItem(item);
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            this.executingTask = ExecuteAsync(cancellationToken);
+
+            if (this.executingTask.IsCompleted)
+            {
+                return this.executingTask;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            if (this.executingTask == null)
+                return;
+
+            try
+            {
+                stoppingCts.Cancel();
+            }
+            finally
+            {
+                await Task.WhenAll(this.executingTask);
+            }
         }
     }
 }
