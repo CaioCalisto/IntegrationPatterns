@@ -52,9 +52,9 @@ namespace Order
                     splitterChannel.QueueDeclare(queue: splitterQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
                     byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(order));
                     splitterChannel.BasicPublish(exchange: "", routingKey: splitterQueueName, basicProperties: null, body: body);
-                    Console.WriteLine($"ORDER SENT, ID {id}");
+                    Console.WriteLine($"ORDER SENT, ID: {id}, Date: {order.Date}");
                 }
-                Thread.Sleep(3000);
+                Thread.Sleep(10000);
 
                 id++;
             }
@@ -64,7 +64,7 @@ namespace Order
         {
             string message = Encoding.UTF8.GetString(args.Body);
             Response.Response order = JsonConvert.DeserializeObject<Response.Response>(message);
-            Console.WriteLine($"ORDER PROCESSED: {order.OrderId} - {order.Date} - {order.Message}");
+            Console.WriteLine($"ORDER PROCESSED: {order.OrderId} - {order.Message} - {order.Date}");
         }
 
         static IConnection CreateConnection()

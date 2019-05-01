@@ -49,7 +49,7 @@ namespace Service.Services.Receiver
         {
             string message = Encoding.UTF8.GetString(args.Body);
             Order item = JsonConvert.DeserializeObject<Order>(message);
-            this.logger.LogInformation($"Receive order id {item.OrderId}, item {item.ItemId}, Seq {item.ItemSeq}");
+            this.logger.LogInformation($"Order id {item.OrderId}, item {item.ItemId}, Seq {item.ItemSeq}, Date: {item.Date}");
             this.orderItemsDao.AddOrderItem(item);
         }
 

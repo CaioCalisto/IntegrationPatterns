@@ -51,7 +51,6 @@ namespace Service.Services.Sender
             {
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    this.logger.LogInformation("Aggregator checking for orders");
                     CheckAggregatorMessages();
                     await Task.Delay(delayOptions.CheckAggregatorTime, stoppingToken);
                 }
@@ -74,12 +73,10 @@ namespace Service.Services.Sender
             {
 				this.logger.LogInformation($"Checking order id {orderId}");
                 IEnumerable<Order> orderItems = this.orderItemsDao.GetOrderItemsByOrderId(orderId);
-                this.logger.LogInformation($"Found {orderItems.Count()} items");
                 if (orderItems.Count() != 0)
                 {
                     if (orderItems.First().OrderLength == orderItems.Count())
                     {
-                        this.logger.LogInformation($"I have all of them: order id {orderId}");
                         SendMessage(orderItems);
                         this.orderItemsDao.RemoveByOrderId(orderId);
                     }
@@ -98,7 +95,7 @@ namespace Service.Services.Sender
             
             byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(order));
             this.processedChannel.BasicPublish(exchange: "", routingKey: this.processedQueueName, basicProperties: null, body: body);
-            this.logger.LogInformation($"Sent order id {orderItems.First().OrderId}");
+            this.logger.LogInformation($"Sent order id {orderItems.First().OrderId}, Data: {orderItems.First().Date}");
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
