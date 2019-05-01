@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,17 +9,23 @@ namespace Service.DAO
     public class OrderItemsDao : IOrderItemsDao
     {
         private BlockingCollection<Order> items;
+        private readonly ILogger logger;
 
-        public OrderItemsDao()
+        public OrderItemsDao(ILoggerFactory loggerFactory)
         {
             this.items = new BlockingCollection<Order>();
+            this.logger = loggerFactory.CreateLogger<OrderItemsDao>();
         }
 
         public void AddOrderItem(Order orderItem)
         {
             if (!this.items.Any(o => o.OrderId == orderItem.OrderId && o.ItemSeq == orderItem.ItemSeq))
             {
-                this.items.TryAdd(orderItem);
+                bool result = this.items.TryAdd(orderItem);
+                if (result == false)
+                {
+                    this.logger.LogWarning($"AddBlocked: order id: {orderItem.OrderId}, seq: {orderItem.ItemSeq}");
+                }
             }
         }
 

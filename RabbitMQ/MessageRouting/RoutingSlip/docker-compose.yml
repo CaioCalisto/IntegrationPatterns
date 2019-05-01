@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+    rabbitmq:
+        image: rabbitmq:3-management
+        ports: 
+            - "15670:15672"
+            - "5670:5672"
+
+    order:
+        build: ./Order
+        depends_on:
+            - rabbitmq
+
+    validationA:
+        build: ./Validation_A
+        depends_on:
+            - rabbitmq
+
+    validationB:
+        build: ./Validation_B
+        depends_on:
+            - rabbitmq
+
+    validationC:
+        build: ./Validation_C
+        depends_on:
+            - rabbitmq
