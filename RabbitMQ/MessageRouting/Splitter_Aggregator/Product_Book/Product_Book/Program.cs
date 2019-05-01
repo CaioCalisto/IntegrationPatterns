@@ -40,7 +40,7 @@ namespace Product_Book
 
         private static void SendResponse(OrderItem orderItem)
         {
-            Thread.Sleep(5000);
+            Thread.Sleep(10000);
             string aggregatorQueueName = "AGGREGATOR_QUEUE";
             Response.Response order = new Response.Response(orderItem.OrderId, orderItem.ItemId, true, "Book Processed", orderItem.Date, orderItem.ItemSeq, orderItem.OrderLength);
             using (IModel aggregatorChannel = connection.CreateModel())
