@@ -4,10 +4,9 @@ namespace Service.DAO
 {
     public interface IOrderItemsDao
     {
-        void AddOrderItem(Services.Receiver.Response orderItem);
-        void Clear();
+        void AddOrderItem(Order orderItem);
         IEnumerable<int> GetOrderIds();
-        IEnumerable<Services.Receiver.Response> GetOrderItemsByOrderId(int orderId);
+        IEnumerable<Order> GetOrderItemsByOrderId(int orderId);
         int GetOrderLength(int orderId);
         void RemoveByOrderId(int orderId);
     }

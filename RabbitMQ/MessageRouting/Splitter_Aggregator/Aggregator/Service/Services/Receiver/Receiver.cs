@@ -48,8 +48,8 @@ namespace Service.Services.Receiver
         private void ConsumerReceived(object sender, BasicDeliverEventArgs args)
         {
             string message = Encoding.UTF8.GetString(args.Body);
-            Response item = JsonConvert.DeserializeObject<Response>(message);
-            this.logger.LogInformation($"Receive order id {item.OrderId}, {item.ItemId}, Seq {item.ItemSeq}");
+            Order item = JsonConvert.DeserializeObject<Order>(message);
+            this.logger.LogInformation($"Receive order id {item.OrderId}, item {item.ItemId}, Seq {item.ItemSeq}");
             this.orderItemsDao.AddOrderItem(item);
         }
 

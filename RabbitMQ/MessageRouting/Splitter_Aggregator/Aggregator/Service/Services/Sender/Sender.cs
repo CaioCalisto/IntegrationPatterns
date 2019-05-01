@@ -72,16 +72,22 @@ namespace Service.Services.Sender
             IEnumerable<int> orderIds = this.orderItemsDao.GetOrderIds();
             foreach(int orderId in orderIds)
             {
-                IEnumerable<Services.Receiver.Response> orderItems = this.orderItemsDao.GetOrderItemsByOrderId(orderId);
-                if (this.orderItemsDao.GetOrderLength(orderId) == orderItems.Count())
+				this.logger.LogInformation($"Checking order id {orderId}");
+                IEnumerable<Order> orderItems = this.orderItemsDao.GetOrderItemsByOrderId(orderId);
+                this.logger.LogInformation($"Found {orderItems.Count()} items");
+                if (orderItems.Count() != 0)
                 {
-                    SendMessage(orderItems);
-                    this.orderItemsDao.RemoveByOrderId(orderId);
+                    if (orderItems.First().OrderLength == orderItems.Count())
+                    {
+                        this.logger.LogInformation($"I have all of them: order id {orderId}");
+                        SendMessage(orderItems);
+                        this.orderItemsDao.RemoveByOrderId(orderId);
+                    }
                 }
             }
         }
 
-        private void SendMessage(IEnumerable<Services.Receiver.Response> orderItems)
+        private void SendMessage(IEnumerable<Order> orderItems)
         {
             bool processed = true;
             string message = string.Join(", ", orderItems.Select(i => i.Message));

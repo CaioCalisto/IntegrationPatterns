@@ -1,21 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Service.DAO
 {
     public class OrderItemsDao : IOrderItemsDao
     {
-        private List<Services.Receiver.Response> items;
+        private BlockingCollection<Order> items;
 
         public OrderItemsDao()
         {
-            this.items = new List<Services.Receiver.Response>();
+            this.items = new BlockingCollection<Order>();
         }
 
-        public void AddOrderItem(Services.Receiver.Response orderItem)
+        public void AddOrderItem(Order orderItem)
         {
-            if (!this.items.Contains(orderItem))
-                this.items.Add(orderItem);
+            if (!this.items.Any(o => o.OrderId == orderItem.OrderId && o.ItemSeq == orderItem.ItemSeq))
+            {
+                this.items.TryAdd(orderItem);
+            }
         }
 
         public IEnumerable<int> GetOrderIds()
@@ -25,32 +29,26 @@ namespace Service.DAO
 
         public int GetOrderLength(int orderId)
         {
-            Services.Receiver.Response order = this.items.Where(i => i.OrderId == orderId).FirstOrDefault();
+            Order order = this.items.Where(i => i.OrderId == orderId).FirstOrDefault();
             if (order == null)
                 return 0;
             else
                 return order.OrderLength;
         }
 
-        public IEnumerable<Services.Receiver.Response> GetOrderItemsByOrderId(int orderId)
+        public IEnumerable<Order> GetOrderItemsByOrderId(int orderId)
         {
             return this.items.Where(i => i.OrderId == orderId);
         }
 
         public void RemoveByOrderId(int orderId)
         {
-            IEnumerable<Services.Receiver.Response> itemsToRemove = this.items.Where(i => i.OrderId == orderId);
-            foreach(Services.Receiver.Response itemToRemove in itemsToRemove)
+            IEnumerable<Order> itemsToRemove = this.items.Where(i => i.OrderId == orderId);
+            foreach(Order itemToRemove in itemsToRemove)
             {
-                this.items.Remove(itemToRemove);
+                Order removed = itemToRemove;
+                this.items.TryTake(out removed);
             }
         }
-
-        public void Clear()
-        {
-            this.items.Clear();
-            this.items = new List<Services.Receiver.Response>();
-        }
-
     }
 }

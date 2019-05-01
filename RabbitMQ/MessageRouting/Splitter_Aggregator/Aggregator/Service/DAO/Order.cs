@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Service.Services.Receiver
+namespace Service.DAO
 {
-    public class Response
+    public class Order
     {
         public int OrderId { get; set; }
         public int ItemId { get; set; }
@@ -12,7 +12,7 @@ namespace Service.Services.Receiver
         public int ItemSeq { get; set; }
         public int OrderLength { get; set; }
 
-        public Response(int orderId, int itemId, bool processed, string message, DateTime date, int itemSeq, int orderLength)
+        public Order(int orderId, int itemId, bool processed, string message, DateTime date, int itemSeq, int orderLength)
         {
             this.OrderId = orderId;
             this.ItemId = itemId;
