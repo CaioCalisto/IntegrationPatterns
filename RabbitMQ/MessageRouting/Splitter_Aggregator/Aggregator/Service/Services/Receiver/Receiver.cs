@@ -55,12 +55,7 @@ namespace Service.Services.Receiver
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            this.executingTask = ExecuteAsync(cancellationToken);
-
-            if (this.executingTask.IsCompleted)
-            {
-                return this.executingTask;
-            }
+            this.executingTask = Task.Run(() => ExecuteAsync(cancellationToken));
 
             return Task.CompletedTask;
         }

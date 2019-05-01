@@ -97,12 +97,7 @@ namespace Service.Services.Sender
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            this.executingTask = ExecuteAsync(cancellationToken);
-
-            if (this.executingTask.IsCompleted)
-            {
-                return this.executingTask;
-            }
+            executingTask = Task.Run(() => ExecuteAsync(cancellationToken));
 
             return Task.CompletedTask;
         }
