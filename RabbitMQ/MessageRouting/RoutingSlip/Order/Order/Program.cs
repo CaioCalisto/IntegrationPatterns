@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
@@ -10,12 +12,54 @@ namespace Order
     {
         static IConnection connection;
         static string routerExchangeName = "ROUTER_EXCHANGE";
+        static string processedQueueName = "PROCESSED_QUEUE";
 
         static void Main(string[] args)
         {
             connection = CreateConnection();
 
-            
+            // Start listening response
+            IModel aggregatorChannel = connection.CreateModel();
+            aggregatorChannel.QueueDeclare(queue: processedQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+            EventingBasicConsumer consumer = new EventingBasicConsumer(aggregatorChannel);
+            consumer.Received += ConsumerReceived;
+            aggregatorChannel.BasicConsume(queue: processedQueueName, autoAck: true, consumer: consumer);
+
+            CreateOrderAndSend();
+        }
+
+        private static void CreateOrderAndSend()
+        {
+            bool continueSending = true;
+            int orderId = 0;
+            while(continueSending == true)
+            {
+                int customerId = orderId % 2 == 0 ? 1 : 2;
+                List<string> routingList = new List<string>();
+                if (orderId % 2 == 0)
+                {
+                    routingList.Add("C");
+                }
+                else if (orderId % 3 == 0)
+                {
+                    routingList.Add("B");
+                    routingList.Add("C");
+                }
+                else
+                {
+                    routingList.Add("B");
+                }
+
+                Messages.RoutingSlip routing = new Messages.RoutingSlip(routingList);
+                Messages.Header header = new Messages.Header(routing, true, DateTime.Now);
+                Messages.Out.Order order = new Messages.Out.Order(orderId, customerId, 1000);
+                Messages.Message<Messages.Out.Order> message = new Messages.Message<Messages.Out.Order>(header, order);
+
+                SendMessage(message, "A");
+                
+                Thread.Sleep(5000);
+                orderId++;
+            }
         }
 
         static void SendMessage(Messages.Message<Messages.Out.Order> message, string forward)
@@ -25,6 +69,21 @@ namespace Order
                 channel.ExchangeDeclare(exchange: routerExchangeName, type: ExchangeType.Direct);
                 byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
                 channel.BasicPublish(exchange: routerExchangeName, routingKey: forward, basicProperties: null, body: body);
+                Console.WriteLine($"Order {message.Body.OrderId} sent: {message.Header.Date}");
+            }
+        }
+
+        private static void ConsumerReceived(object sender, BasicDeliverEventArgs args)
+        {
+            string message = Encoding.UTF8.GetString(args.Body);
+            Messages.Message<Messages.In.Response> response = JsonConvert.DeserializeObject<Messages.Message<Messages.In.Response>>(message);
+            if (response.Header.Success == false)
+            {
+                Console.WriteLine($"Order {response.Body.OrderId} from customer {response.Body.CustomerId} fails: Message: {response.Body.Message}");
+            }
+            else
+            {
+                Console.WriteLine($"Order {response.Body.OrderId} from customer {response.Body.CustomerId} succeeded");
             }
         }
 
