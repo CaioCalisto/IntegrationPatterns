@@ -36,23 +36,27 @@ namespace Order
             {
                 int customerId = orderId % 2 == 0 ? 1 : 2;
                 List<string> routingList = new List<string>();
+                double amount = 0;
                 if (orderId % 2 == 0)
                 {
                     routingList.Add("C");
+                    amount = 1000;
                 }
                 else if (orderId % 3 == 0)
                 {
                     routingList.Add("B");
                     routingList.Add("C");
+                    amount = 500;
                 }
                 else
                 {
                     routingList.Add("B");
+                    amount = 300;
                 }
 
                 Messages.RoutingSlip routing = new Messages.RoutingSlip(routingList);
                 Messages.Header header = new Messages.Header(routing, true, DateTime.Now);
-                Messages.Out.Order order = new Messages.Out.Order(orderId, customerId, 1000);
+                Messages.Out.Order order = new Messages.Out.Order(orderId, customerId, amount);
                 Messages.Message<Messages.Out.Order> message = new Messages.Message<Messages.Out.Order>(header, order);
 
                 SendMessage(message, "A");
