@@ -74,7 +74,12 @@ namespace Validation_A
 
         static void SendResponseMessage(Messages.Message<Messages.Response.Response> response)
         {
-
+            using(IModel channel = connection.CreateModel())
+            {
+                byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
+                channel.BasicPublish(exchange: "", routingKey: "PROCESSED_QUEUE", basicProperties: null, body: body);
+                Console.WriteLine($"Send response. Date: {response.Header.Date}");
+            }
         }
 
         static void SendMessageToNextValidation(Messages.Message<Messages.Orders.Order> message)
@@ -91,6 +96,7 @@ namespace Validation_A
                         byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
                         channel.BasicPublish(exchange: routerExchangeName, routingKey: forward, basicProperties: null, body: body);
                     }
+                    Console.WriteLine($"Send forward to {forward}. OrderId: {message.Body.OrderId}");
                 }
             }
             else
