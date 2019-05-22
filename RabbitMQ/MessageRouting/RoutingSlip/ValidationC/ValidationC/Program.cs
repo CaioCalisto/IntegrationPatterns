@@ -88,6 +88,7 @@ namespace ValidationC
             {
                 if (message.Header.RoutingSlip.Forward[0] != null)
                 {
+					Console.WriteLine($"Foward to {message.Header.RoutingSlip.Forward[0]}");
                     string forward = message.Header.RoutingSlip.Forward[0];
                     message.Header.RoutingSlip.Forward.RemoveAt(0);
                     using (IModel channel = connection.CreateModel())

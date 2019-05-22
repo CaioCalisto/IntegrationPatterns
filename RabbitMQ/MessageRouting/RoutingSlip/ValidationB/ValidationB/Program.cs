@@ -85,10 +85,12 @@ namespace ValidationB
 
         static void SendMessageToNextValidation(Messages.Message<Messages.Orders.Order> message)
         {
-            if (message.Header.RoutingSlip.Forward != null || message.Header.RoutingSlip.Forward.Count != 0)
+            if (message.Header.RoutingSlip.Forward != null)
             {
+                message.Header.RoutingSlip.Forward.ForEach(c => Console.WriteLine($"Forward list contains {c}"));
                 if (message.Header.RoutingSlip.Forward[0] != null)
                 {
+                    Console.WriteLine($"Foward to {message.Header.RoutingSlip.Forward[0]}");
                     string forward = message.Header.RoutingSlip.Forward[0];
                     message.Header.RoutingSlip.Forward.RemoveAt(0);
                     using (IModel channel = connection.CreateModel())
@@ -102,6 +104,7 @@ namespace ValidationB
             }
             else
             {
+                Console.WriteLine($"Should send response to Order");
                 Messages.Header header = new Messages.Header()
                 {
                     Date = message.Header.Date,
