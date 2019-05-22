@@ -96,7 +96,7 @@ namespace ValidationC
                         byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
                         channel.BasicPublish(exchange: routerExchangeName, routingKey: forward, basicProperties: null, body: body);
                     }
-                    Console.WriteLine($"Send forward to {forward}. OrderId: {message.Body.OrderId}");
+                    Console.WriteLine($"OrderId: {message.Body.OrderId} send forward to {forward}.");
                 }
             }
             else
