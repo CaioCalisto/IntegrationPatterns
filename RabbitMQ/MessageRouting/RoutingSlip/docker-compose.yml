@@ -17,12 +17,12 @@ services:
         depends_on:
             - rabbitmq
 
-    #validationB:
-    #    build: ./Validation_B
-    #    depends_on:
-    #        - rabbitmq
-    #
-    #validationC:
-    #    build: ./Validation_C
-    #    depends_on:
-    #        - rabbitmq
+    validationb:
+        build: ./ValidationB
+        depends_on:
+            - rabbitmq
+    
+    validationc:
+        build: ./ValidationC
+        depends_on:
+            - rabbitmq
