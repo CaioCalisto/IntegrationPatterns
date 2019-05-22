@@ -3,11 +3,10 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Text;
-using System.Linq;
 using System.Threading;
-using Validation_A.Validations;
+using ValidationB.Validations;
 
-namespace Validation_A
+namespace ValidationB
 {
     class Program
     {
@@ -21,7 +20,7 @@ namespace Validation_A
             IModel receiveChannel = connection.CreateModel();
             receiveChannel.ExchangeDeclare(exchange: routerExchangeName, type: ExchangeType.Direct);
             string queueName = receiveChannel.QueueDeclare().QueueName;
-            receiveChannel.QueueBind(queue: queueName, exchange: routerExchangeName, routingKey: "A");
+            receiveChannel.QueueBind(queue: queueName, exchange: routerExchangeName, routingKey: "B");
             Console.WriteLine("Book Service waiting for messages");
             EventingBasicConsumer consumer = new EventingBasicConsumer(receiveChannel);
             consumer.Received += ConsumerReceived;
@@ -32,6 +31,7 @@ namespace Validation_A
                 Console.WriteLine("Book Service listening...");
                 Thread.Sleep(20000);
             }
+
         }
 
         private static void ConsumerReceived(object sender, BasicDeliverEventArgs args)
@@ -58,7 +58,7 @@ namespace Validation_A
                     RoutingSlip = null
                 };
                 string messageConcatenated = "";
-                foreach(var notification in validation.Notifications)
+                foreach (var notification in validation.Notifications)
                 {
                     messageConcatenated += notification.Message;
                 }
@@ -75,7 +75,7 @@ namespace Validation_A
 
         static void SendResponseMessage(Messages.Message<Messages.Response.Response> response)
         {
-            using(IModel channel = connection.CreateModel())
+            using (IModel channel = connection.CreateModel())
             {
                 byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
                 channel.BasicPublish(exchange: "", routingKey: "PROCESSED_QUEUE", basicProperties: null, body: body);

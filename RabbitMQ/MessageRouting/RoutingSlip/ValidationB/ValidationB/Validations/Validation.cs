@@ -1,5 +1,5 @@
 ﻿
-namespace Validation_A.Validations
+namespace ValidationB.Validations
 {
     public class Validation: AValidation
     {
