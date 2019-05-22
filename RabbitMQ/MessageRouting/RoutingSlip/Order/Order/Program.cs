@@ -19,11 +19,11 @@ namespace Order
             connection = CreateConnection();
 
             // Start listening response
-            IModel aggregatorChannel = connection.CreateModel();
-            aggregatorChannel.QueueDeclare(queue: processedQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
-            EventingBasicConsumer consumer = new EventingBasicConsumer(aggregatorChannel);
+            IModel channel = connection.CreateModel();
+            channel.QueueDeclare(queue: processedQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+            EventingBasicConsumer consumer = new EventingBasicConsumer(channel);
             consumer.Received += ConsumerReceived;
-            aggregatorChannel.BasicConsume(queue: processedQueueName, autoAck: true, consumer: consumer);
+            channel.BasicConsume(queue: processedQueueName, autoAck: true, consumer: consumer);
 
             CreateOrderAndSend();
         }
