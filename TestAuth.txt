@@ -1,0 +1,103 @@
+public static class AuthExtension
+{
+    public static AuthenticationBuilder AddTestAuth(this AuthenticationBuilder builder, Action<TestAuthenticationOptions> options)
+    {
+        return builder.AddScheme<TestAuthenticationOptions, TestAuthenticationHandler>("Test scheme", "Test scheme", options);
+    }
+}
+
+***
+.ConfigureServices(services => services.AddAutofac())
+                .ConfigureTestContainer<ContainerBuilder>(builder =>
+                {
+                    builder.RegisterModule(new InfrastructureModule());
+                    builder.RegisterModule(new ApplicationModule());
+                })
+***
+public class CoreApiScenarioBase
+    {
+        protected IMongoDatabase database;
+        protected string connectionString;
+        protected string databaseName;
+
+        public CoreApiScenarioBase()
+        {
+            this.connectionString = "mongodb://localhost:27000/S360Test";
+            this.databaseName = "S360Test";
+            this.database = new MongoClient(this.connectionString).GetDatabase(this.databaseName);
+        }
+
+        public TestServer CreateServer()
+        {
+            string authority = "Data Source=localhost;Initial Catalog=Studio360I;User Id=360user;Password=360user;";
+            var httpClientsConfiguration = new JsonConfigurationLoader()
+               .CreateConfiguration(ConfigurationKey.HttpClients);
+            var redisConfiguration = new JsonConfigurationLoader()
+                .CreateConfiguration(ConfigurationKey.Redis);
+
+            string path = Assembly.GetAssembly(typeof(CoreApiScenarioBase)).Location;
+            IWebHostBuilder hostBuilder = new WebHostBuilder()
+                .UseContentRoot(Path.GetDirectoryName(path))
+                .ConfigureServices(services => services.AddAutofac())
+                .ConfigureTestContainer<ContainerBuilder>(builder =>
+                {
+                    builder.RegisterModule(new InfrastructureModule());
+                    builder.RegisterModule(new ApplicationModule());
+                })
+                .UseKestrel()
+                .UseStartup<TestStartup>();
+
+            TestServer testServer = new TestServer(hostBuilder);
+
+            return testServer;
+        }
+    }
+****************
+internal class TestAuthenticationHandler : AuthenticationHandler<TestAuthenticationOptions>
+{
+    public TestAuthenticationHandler(IOptionsMonitor<TestAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
+        : base (options, logger, encoder, clock)
+    { }
+
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        var ticket = new AuthenticationTicket(
+            new ClaimsPrincipal(this.Options.Identity),
+            new AuthenticationProperties(),
+            "Test scheme");
+
+        return Task.FromResult(AuthenticateResult.Success(ticket));
+    }
+}
+***********
+public class TestAuthenticationOptions : AuthenticationSchemeOptions
+{
+    public virtual ClaimsIdentity Identity { get; } = new ClaimsIdentity(
+        new Claim[]
+    {
+        new Claim("preferred_username", Guid.NewGuid().ToString())
+    }, "test");
+}
+***********************
+public class TestStartup : Startup
+{
+    public TestStartup()
+        : base()
+    {
+    }
+
+    public override void ConfigureAuth(IServiceCollection services)
+    {
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = "Test scheme";
+            options.DefaultChallengeScheme = "Test scheme";
+        }).AddTestAuth(o => { });
+    }
+}
+*****************
+public virtual void ConfigureAuth(IServiceCollection services)
+        {
+            services.AddCustomAuthentication();
+        }
+*********************
