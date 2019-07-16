@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using Service.Configuration;
 using Service.DAO;
-using Service.Services.Base;
+using Service.RabbitBus;
 
 namespace Service.Services.Sender
 {

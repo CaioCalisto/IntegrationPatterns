@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Service.Configuration;
 using Service.DAO;
-using Service.Services.Base;
+using Service.RabbitBus;
 
 namespace Service
 {

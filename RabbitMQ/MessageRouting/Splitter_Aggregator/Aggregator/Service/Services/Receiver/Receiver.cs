@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Service.DAO;
-using Service.Services.Base;
+using Service.RabbitBus;
 
 namespace Service.Services.Receiver
 {
