@@ -1,4 +1,6 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
+using Service.Configuration;
 using System;
 using System.Threading;
 
@@ -6,15 +8,22 @@ namespace Service.Services.Base
 {
     public class RabbitMQBase : IRabbitMQBase
     {
+        private RabbitMQConfig rabbitMQConfig;
+
+        public RabbitMQBase(IOptions<RabbitMQConfig> settings)
+        {
+            this.rabbitMQConfig = settings.Value;
+        }
+
         public IConnection CreateConnection()
         {
             IConnection connection = null;
             IConnectionFactory factory = new ConnectionFactory()
             {
-                HostName = "rabbitmq",
-                UserName = "guest",
-                Password = "guest",
-                Port = 5672
+                HostName = this.rabbitMQConfig.RabbitMQHostName,
+                UserName = this.rabbitMQConfig.RabbitMQUserName,
+                Password = this.rabbitMQConfig.RabbitMQPassword,
+                Port = this.rabbitMQConfig.RabbitMQPort
             };
             bool tryAgain = true;
             while (tryAgain == true)

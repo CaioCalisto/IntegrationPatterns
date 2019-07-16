@@ -21,6 +21,7 @@ namespace Service
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<DelayOptions>(Configuration);
+            services.Configure<RabbitMQConfig>(Configuration);
             services.AddOptions();
             services.AddTransient<IRabbitMQBase, RabbitMQBase>();
             services.AddSingleton<IOrderItemsDao, OrderItemsDao>();

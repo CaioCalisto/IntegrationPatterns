@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  aggregatorservice:
+    image: aggregatorservice
+    build:
+      context: .
+      dockerfile: Service/Dockerfile
+    environment:
+      - RabbitMQ__Amqp=amqp://host.docker.internal
+      - RabbitMQ__Management=http://host.docker.internal:15672/api
