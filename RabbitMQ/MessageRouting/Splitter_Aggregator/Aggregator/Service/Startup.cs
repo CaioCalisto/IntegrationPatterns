@@ -23,7 +23,7 @@ namespace Service
             services.Configure<DelayOptions>(Configuration);
             services.Configure<RabbitMQConfig>(Configuration);
             services.AddOptions();
-            services.AddTransient<IRabbitMQBase, RabbitMQBase>();
+            services.AddSingleton<IRabbitMQBase, RabbitMQBase>();
             services.AddSingleton<IOrderItemsDao, OrderItemsDao>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.Receiver.Receiver>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.Sender.Sender>();

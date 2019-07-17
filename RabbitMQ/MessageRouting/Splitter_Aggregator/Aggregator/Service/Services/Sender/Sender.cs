@@ -32,7 +32,7 @@ namespace Service.Services.Sender
             {
 				this.processedQueueName = "ORDERPROCESSED_QUEUE";
                 this.logger = loggerFactory.CreateLogger<Sender>();
-                this.connection = rabbitMQBase.CreateConnection();
+                this.connection = rabbitMQBase.Connection;
 				this.processedChannel = connection.CreateModel();
 				this.processedChannel.QueueDeclare(queue: processedQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
                 this.orderItemsDao = orderItemsDao;

@@ -7,14 +7,16 @@ namespace Service.RabbitBus
 {
     public class RabbitMQBase : IRabbitMQBase
     {
-        private RabbitMQConfig rabbitMQConfig;
+        private readonly RabbitMQConfig rabbitMQConfig;
+        public IConnection Connection { get; }
 
         public RabbitMQBase(IOptions<RabbitMQConfig> settings)
         {
             this.rabbitMQConfig = settings.Value;
+            this.Connection = this.CreateConnection();
         }
 
-        public IConnection CreateConnection()
+        private IConnection CreateConnection()
         {
             IConnection connection = null;
             IConnectionFactory factory = new ConnectionFactory()

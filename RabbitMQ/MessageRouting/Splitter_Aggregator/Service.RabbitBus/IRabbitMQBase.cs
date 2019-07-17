@@ -4,6 +4,6 @@ namespace Service.RabbitBus
 {
     public interface IRabbitMQBase
     {
-        IConnection CreateConnection();
+        IConnection Connection { get; }
     }
 }

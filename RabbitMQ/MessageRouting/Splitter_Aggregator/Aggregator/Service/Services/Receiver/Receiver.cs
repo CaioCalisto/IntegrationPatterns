@@ -22,7 +22,7 @@ namespace Service.Services.Receiver
        
         public Receiver(IRabbitMQBase rabbitMQBase, ILoggerFactory loggerFactory, IOrderItemsDao orderItemsDao)
         {
-            this.connection = rabbitMQBase.CreateConnection();
+            this.connection = rabbitMQBase.Connection;
             this.logger = loggerFactory.CreateLogger<Receiver>();
             this.orderItemsDao = orderItemsDao;
             this.aggregatorQueueName = "AGGREGATOR_QUEUE";
