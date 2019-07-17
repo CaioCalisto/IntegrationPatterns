@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Service/Dockerfile
-    environment:
-      - RabbitMQHostName=http://host.docker.internal:15672
-    extra_hosts:
-      - "localhost:10.30.10.157"
+    ##environment:
+    ##  - RabbitMQHostName=http://host.docker.internal:15672
+    ##extra_hosts:
+    ##  - "localhost:10.30.10.157"

@@ -31,7 +31,7 @@ namespace Service.RabbitBus
             {
                 try
                 {
-                    connection = factory.CreateConnection();
+                    connection = factory.CreateConnection("AggregatorConnection");
                     tryAgain = false;
                 }
                 catch (Exception ex)
